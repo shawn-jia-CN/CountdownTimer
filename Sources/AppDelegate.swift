@@ -51,7 +51,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if countdownWindow!.isVisible {
             countdownWindow!.orderOut(nil)
         } else {
-            countdownWindow!.showWindow(nil)
+            countdownWindow!.makeKeyAndOrderFront(nil)
             updateStreak()
         }
     }
