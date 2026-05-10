@@ -1,0 +1,16 @@
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+build/
+*.app
+.swiftpm/
+xcuserdata/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM

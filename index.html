@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⏱️ 倒计时小助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .countdown-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .countdown-display {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .target-date {
+            font-size: 14px;
+            color: #999;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .streak-section {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .streak-section .section-title {
+            color: white;
+        }
+
+        .streak-display {
+            font-size: 48px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .last-record {
+            font-size: 12px;
+            text-align: center;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .btn-secondary:hover {
+            background: #dee2e6;
+            transform: translateY(-2px);
+        }
+
+        .btn-record {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+        }
+
+        .btn-record:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(17, 153, 142, 0.4);
+        }
+
+        .instructions {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 13px;
+            color: #856404;
+            line-height: 1.6;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .modal input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px;
+            }
+
+            .countdown-display {
+                font-size: 28px;
+            }
+
+            .streak-display {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⏱️ 倒计时小助手</h1>
+        </div>
+
+        <div class="countdown-section">
+            <div class="section-title">📅 距离目标日期还有</div>
+            <div class="countdown-display" id="countdown">加载中...</div>
+            <div class="target-date" id="targetDateDisplay">未设置目标日期</div>
+        </div>
+
+        <div class="streak-section">
+            <div class="section-title">💪 你已坚持</div>
+            <div class="streak-display" id="streakDays">0 天</div>
+            <div class="last-record" id="lastRecord">点击下方按钮记录你的坚持</div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="openModal()">📝 设置目标日期</button>
+            <button class="btn btn-secondary" onclick="resetStreak()">🔄 重置记录</button>
+        </div>
+
+        <button class="btn btn-record" onclick="recordStreak()">✅ 记录今天的坚持</button>
+
+        <div class="instructions">
+            💡 <strong>使用说明：</strong><br>
+            1. 点击"设置目标日期"设定你的目标<br>
+            2. 每次想要坚持时，点击"记录今天的坚持"<br>
+            3. 系统会自动计算你坚持的天数<br>
+            4. 数据保存在本地浏览器中
+        </div>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h2>📅 设置目标日期</h2>
+            <input type="date" id="newTargetDate">
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="saveTargetDate()">保存</button>
+                <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEYS = {
+            targetDate: 'countdown_target_date',
+            streakStartDate: 'countdown_streak_start',
+            lastClickDate: 'countdown_last_click'
+        };
+
+        let countdownInterval;
+
+        function init() {
+            loadData();
+            updateCountdown();
+            updateStreak();
+
+            countdownInterval = setInterval(() => {
+                updateCountdown();
+            }, 1000);
+        }
+
+        function loadData() {
+            const targetDate = localStorage.getItem(STORAGE_KEYS.targetDate);
+            if (targetDate) {
+                document.getElementById('targetDateDisplay').textContent =
+                    `目标日期: ${formatDate(targetDate)}`;
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        }
+
+        function updateCountdown() {
+            const targetDateStr = localStorage.getItem(STORAGE_KEYS.targetDate);
+
+            if (!targetDateStr) {
+                document.getElementById('countdown').textContent = '请设置目标日期';
+                return;
+            }
+
+            const targetDate = new Date(targetDateStr);
+            const now = new Date();
+            const diff = targetDate - now;
+
+            if (diff <= 0) {
+                document.getElementById('countdown').textContent = '🎉 时间到！';
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('countdown').textContent =
+                `${days} 天 ${hours} 小时 ${minutes} 分钟 ${seconds} 秒`;
+        }
+
+        function updateStreak() {
+            const streakStartStr = localStorage.getItem(STORAGE_KEYS.streakStartDate);
+            const lastClickStr = localStorage.getItem(STORAGE_KEYS.lastClickDate);
+
+            if (!streakStartStr) {
+                document.getElementById('streakDays').textContent = '0 天';
+                document.getElementById('lastRecord').textContent = '点击"记录今天的坚持"开始追踪';
+                return;
+            }
+
+            const streakStart = new Date(streakStartStr);
+            const now = new Date();
+            const days = Math.floor((now - streakStart) / (1000 * 60 * 60 * 24));
+
+            document.getElementById('streakDays').textContent = `${days} 天`;
+
+            if (lastClickStr) {
+                const lastClick = new Date(lastClickStr);
+                document.getElementById('lastRecord').textContent =
+                    `上次记录: ${formatDateTime(lastClick)}`;
+            }
+        }
+
+        function formatDateTime(date) {
+            return `${formatDate(date)} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+        }
+
+        function recordStreak() {
+            const now = new Date();
+            const streakStartStr = localStorage.getItem(STORAGE_KEYS.streakStartDate);
+
+            if (!streakStartStr) {
+                localStorage.setItem(STORAGE_KEYS.streakStartDate, now.toISOString());
+            }
+
+            localStorage.setItem(STORAGE_KEYS.lastClickDate, now.toISOString());
+
+            updateStreak();
+
+            alert(`✅ 记录成功！\n\n你已经坚持了 ${getStreakDays()} 天\n\n${getEncouragement()}`);
+        }
+
+        function getStreakDays() {
+            const streakStartStr = localStorage.getItem(STORAGE_KEYS.streakStartDate);
+            if (!streakStartStr) return 0;
+
+            const streakStart = new Date(streakStartStr);
+            const now = new Date();
+            return Math.floor((now - streakStart) / (1000 * 60 * 60 * 24));
+        }
+
+        function getEncouragement() {
+            const days = getStreakDays();
+            const encouragements = [
+                '继续加油！💪',
+                '坚持就是胜利！🏆',
+                '太棒了！继续保持！🌟',
+                '你真的很自律！👏',
+                '每一天都是进步！✨'
+            ];
+            return encouragements[days % encouragements.length];
+        }
+
+        function openModal() {
+            const targetDateStr = localStorage.getItem(STORAGE_KEYS.targetDate);
+            const input = document.getElementById('newTargetDate');
+
+            if (targetDateStr) {
+                input.value = targetDateStr.split('T')[0];
+            } else {
+                const defaultDate = new Date();
+                defaultDate.setDate(defaultDate.getDate() + 100);
+                input.value = defaultDate.toISOString().split('T')[0];
+            }
+
+            document.getElementById('modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+
+        function saveTargetDate() {
+            const input = document.getElementById('newTargetDate');
+            const newDate = input.value;
+
+            if (!newDate) {
+                alert('请选择日期');
+                return;
+            }
+
+            localStorage.setItem(STORAGE_KEYS.targetDate, newDate);
+
+            document.getElementById('targetDateDisplay').textContent =
+                `目标日期: ${formatDate(newDate)}`;
+
+            updateCountdown();
+            closeModal();
+
+            alert('✅ 目标日期设置成功！');
+        }
+
+        function resetStreak() {
+            if (!confirm('⚠️ 确定要重置所有记录吗？\n\n这将清除你的坚持天数和所有历史记录。')) {
+                return;
+            }
+
+            localStorage.removeItem(STORAGE_KEYS.streakStartDate);
+            localStorage.removeItem(STORAGE_KEYS.lastClickDate);
+
+            updateStreak();
+
+            alert('🔄 记录已重置');
+        }
+
+        init();
+    </script>
+</body>
+</html>
