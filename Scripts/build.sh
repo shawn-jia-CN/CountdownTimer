@@ -43,6 +43,14 @@ xcodebuild -project CountdownTimer.xcodeproj \
 
 if [ $? -eq 0 ]; then
     echo "✅ 编译成功"
+    echo ""
+    echo "📦 正在安装应用到 /Applications..."
+    cp -R "$PROJECT_DIR/build/Build/Products/Debug/CountdownTimer.app" /Applications/
+    if [ $? -eq 0 ]; then
+        echo "✅ 应用已成功安装到 /Applications"
+    else
+        echo "⚠️  安装失败，请检查权限"
+    fi
 else
     echo "❌ 编译失败"
     exit 1
@@ -51,14 +59,12 @@ fi
 echo ""
 echo "🎉 构建完成！"
 echo ""
-echo "应用位置: ./build/Build/Products/Debug/CountdownTimer.app"
+echo "✅ 应用已自动安装到 /Applications"
 echo ""
 echo "📋 使用方法:"
-echo "  1. 打开 Finder"
-echo "  2. 进入 ./build/Build/Products/Debug/"
-echo "  3. 双击 CountdownTimer.app"
-echo "  4. 应用会显示在菜单栏（顶部状态栏）"
-echo "  5. 点击图标查看倒计时"
+echo "  1. 从 Launchpad 或应用程序文件夹启动 CountdownTimer"
+echo "  2. 应用会显示在菜单栏（顶部状态栏）"
+echo "  3. 点击图标查看倒计时"
 echo ""
-echo "💡 提示: 可以将 CountdownTimer.app 拖到 Dock 栏方便访问"
+echo "💡 提示: 如果应用已在运行，可以直接退出旧版本，新版本会自动生效"
 echo "========================================="
